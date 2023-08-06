@@ -110,3 +110,17 @@ spec:
 #     nodeAffinity:
 #     podAffinity:
 #     podAntiAffinity: 
+
+# -- External resources --
+# PriorityClass
+#   value: 1000
+#   globalDefault: false
+#   preemptionPolicy: Never/PreemptLowerPriority
+#   description: "This is for the critical pods."
+
+# -- Userful cmds --
+# Taint add - kubectl taint nodes node01 env=prod:NoSchedule/PreferNoSchedule/NoExecute
+# Taint remove - kubectl taint nodes node01 env=prod:NoSchedule/PreferNoSchedule/NoExecute-
+# Label add - kubectl label nodes node01 type=waiting-for-gpu-node-ready
+# Show label - kubectl get nodes --show-lables
+# Filter label - kubectl get nodes -l 'type in (gpu,cpu), az in (az1,az2)'
