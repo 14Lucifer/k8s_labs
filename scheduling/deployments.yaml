@@ -1,0 +1,105 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: high-dep
+  labels:
+    app: high-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: high-pods
+  template:
+    metadata:
+      labels:
+        app: high-pods
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "1024Mi"
+            cpu: "2"
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+      tolerations:
+      - key: "env"
+        operator: "Equal"
+        value: "stage"
+        effect: "NoSchedule"
+      priorityClassName: high
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medium-dep
+  labels:
+    app: medium-dep
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: medium-pods
+  template:
+    metadata:
+      labels:
+        app: medium-pods
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "1024Mi"
+            cpu: "2"
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+      tolerations:
+      - key: "env"
+        operator: "Equal"
+        value: "stage"
+        effect: "NoSchedule"
+      priorityClassName: medium
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: low-dep
+  labels:
+    app: low-dep
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: low-pods
+  template:
+    metadata:
+      labels:
+        app: low-pods
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            memory: "1024Mi"
+            cpu: "2"
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+      tolerations:
+      - key: "env"
+        operator: "Equal"
+        value: "stage"
+        effect: "NoSchedule"
+      priorityClassName: low
+      

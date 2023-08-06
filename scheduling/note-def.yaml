@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: high-dep
+  labels:
+    app: high-dep
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: high-pods
+  template:
+    metadata:
+      labels:
+        app: high-pods
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+        # To test priority class based preemption
+        resources:
+          limits:
+            memory: "1024Mi"
+            cpu: "2"
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+
+      # Priority Class based preemption
+      priorityClassName: high
+
+      # Toleration for node taints
+      tolerations:
+      - key: "env"
+        operator: "Equal"
+        value: "stage"
+        effect: "NoSchedule"
+      
+      # Selecting specific node based on ndoe labels
+      nodeSelector:
+        disk: ssd
+
+      # Scheduling to specific node using its name
+      nodeName: controlplane
+
+      # Scheduling gates and their manual scheduling
+      schedulingGates:
+      - name: waiting-for-gpu-node-ready
+      - name: waiting-for-network-config
+
+      # Affinity and Anti-affinity based on nodes
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: disk
+                operator: In # NotIn
+                values:
+                - ssd
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 10
+            preference:
+              matchExpressions:
+              - key: disk
+                operator: In
+                values:
+                - ssd
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: disk
+                operator: In
+                values:
+                - hdd      
+
+      # Affinity and Anti-affinity based on pods 
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: security
+                operator: In
+                values:
+                - S1
+            topologyKey: topology.kubernetes.io/zone # Topology key is mandatory for nodes.
+        podAntiAffinity: # There is not nodeAntiAffinity but there is podAntiAffinity
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: security
+                  operator: In
+                  values:
+                  - S2
+              topologyKey: topology.kubernetes.io/zone # Topology key is mandatory for nodes.
+
+# spec:
+#   containers:
+#      ....
+#   priorityClassName: 
+#   tolerations:
+#   nodeSelector:
+#   nodeName: 
+#   schedulingGates:
+#   affinity:
+#     nodeAffinity:
+#     podAffinity:
+#     podAntiAffinity: 

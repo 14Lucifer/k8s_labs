@@ -1,0 +1,26 @@
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high
+value: 1000
+globalDefault: false
+preemptionPolicy: Never
+description: "This is for the critical pods."
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: medium
+value: 100
+globalDefault: false
+preemptionPolicy: PreemptLowerPriority
+description: "This is for the production pods."
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: low
+value: 10
+globalDefault: false
+preemptionPolicy: Never
+description: "This is for the staging pods."
