@@ -1,0 +1,148 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-a
+  labels:
+    app: nginx-a
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-a
+  template:
+    metadata:
+      labels:
+        app: nginx-a
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "100m"
+            memory: "200Mi"
+            ephemeral-storage: "100Mi"
+          requests:
+            cpu: "100m"
+            memory: "200Mi"
+            ephemeral-storage: "100Mi"
+      priorityClassName: high-pc
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high-pc
+value: 100
+globalDefault: false
+description: "High priority"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: res-quota-a
+  namespace: default
+spec:
+  hard:
+    # Limit
+    limits.cpu: "1000m"
+    limits.memory: "2000Mi"
+    limits.ephemeral-storage: "2000Mi"
+    persistentvolumeclaims: "2"
+    # Request
+    requests.cpu: "800m"
+    requests.memory: "1800Mi"
+    requests.storage: "3Gi"
+    requests.ephemeral-storage: "1800Mi"
+    # Obj quota
+    count/deployments.apps: "2"
+    pods: "6"
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: pods-high
+  namespace: default
+spec:
+  hard:
+    cpu: "300m"
+    memory: "600Mi"
+    pods: "3"
+  scopeSelector:
+    matchExpressions:
+    - operator : In
+      scopeName: PriorityClass
+      values: ["high-pc"]
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: cpu-resource-constraint
+spec:
+  limits:
+  - default:  # default limit
+      cpu: 100m
+      memory: "200Mi"
+      ephemeral-storage: "100Mi"
+    defaultRequest:  # default request
+      cpu: 100m
+      memory: "200Mi"
+      ephemeral-storage: "100Mi"
+    max:  # max value for each
+      cpu: 200m
+      memory: "400Mi"
+      ephemeral-storage: "200Mi"
+    min: # min value for each
+      cpu: 50m
+      memory: "100Mi"
+      ephemeral-storage: "50Mi"
+    type: Container
+
+
+
+# spec:
+#   containers:
+#   ....
+#     resources:
+#       limits:
+#         cpu: "100m"
+#         memory: "200Mi"
+#         ephemeral-storage: "100Mi"
+#       requests:
+#         cpu: "100m"
+#         memory: "200Mi"
+#         ephemeral-storage: "100Mi"
+#   priorityClassName: high-pc
+
+# -- External resources --
+# spec: (Resource-quota)
+#   hard:
+#     limits.cpu, .memory, .ephemeral-storage, persistentvolumeclaims
+#     requests.cpu, .memory, .storage, .ephemeral-storage
+#     count/deployments.apps: "2" <-- and more obj counts
+#     pods: "6"
+
+# spec: (PriorityClass based Resource-quota)
+#   hard:
+#     cpu, memory, pods <-- requests
+#   scopeSelector:
+#     matchExpressions:
+#     - operator : In
+#       scopeName: PriorityClass
+#       values: ["high-pc"]
+
+# spec: (LimitRange)
+#   limits:
+#   - default:  
+#       cpu, memory, ephemeral-storage
+#     defaultRequest: 
+#       ....
+#     max:  # max value for each
+#       ....
+#     min: # min value for each
+#       ....
+#     type: Container
+
+# -- Userful cmds --
+# check quota - kubectl describe quota

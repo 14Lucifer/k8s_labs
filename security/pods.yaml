@@ -1,0 +1,101 @@
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   name: pod-a
+#   labels:
+#     podname: pod-a
+#     env: prod
+# spec:
+#   containers:
+#   - name: ubuntu
+#     image: ubuntu
+#     command: ["sleep"]
+#     args:
+#     - "3600"
+#     ports:
+#     - containerPort: 80
+#     resources:
+#       limits:
+#         cpu: "300m"
+#         memory: "800Mi"
+#         ephemeral-storage: "200Mi"
+#       requests:
+#         cpu: "200m"
+#         memory: "400Mi"
+#         ephemeral-storage: "100Mi"
+# ---
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   name: pod-b
+#   labels:
+#     podname: pod-b
+#     env: prod
+# spec:
+#   containers:
+#   - name: ubuntu
+#     image: ubuntu
+#     command: ["sleep"]
+#     args:
+#     - "3600"
+#     ports:
+#     - containerPort: 80
+#     resources:
+#       limits:
+#         cpu: "300m"
+#         memory: "800Mi"
+#         ephemeral-storage: "200Mi"
+#       requests:
+#         cpu: "200m"
+#         memory: "400Mi"
+#         ephemeral-storage: "100Mi"
+# ---
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   name: pod-c
+#   labels:
+#     podname: pod-c
+#     env: prod
+# spec:
+#   containers:
+#   - name: ubuntu
+#     image: ubuntu
+#     command: ["sleep"]
+#     args:
+#     - "3600"
+#     ports:
+#     - containerPort: 80
+#     resources:
+#       limits:
+#         cpu: "300m"
+#         memory: "800Mi"
+#         ephemeral-storage: "200Mi"
+#       requests:
+#         cpu: "200m"
+#         memory: "400Mi"
+#         ephemeral-storage: "100Mi"
+# ---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-d
+  labels:
+    podname: pod-d
+    env: prod
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+    resources:
+      limits:
+        cpu: "400m"
+        memory: "200Mi"
+        ephemeral-storage: "100Mi"
+      requests:
+        cpu: "400m"
+        memory: "200Mi"
+        ephemeral-storage: "100Mi"
+  # priorityClassName: high-pc
