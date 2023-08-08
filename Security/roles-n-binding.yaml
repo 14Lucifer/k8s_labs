@@ -1,0 +1,21 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: crole-a
+rules:
+- apiGroups: ["","apps"]
+  resources: ["pods","deployments"]
+  verbs: ["get", "watch", "list", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: crole-bd-a
+subjects:
+- kind: ServiceAccount
+  name: sa-a
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: crole-a
+  apiGroup: rbac.authorization.k8s.io
