@@ -1,0 +1,138 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-a
+  namespace: default
+  labels:
+    env: prod
+    app: prod-a
+spec:
+  containers:
+  - name: ubuntu
+    image: ubuntu
+    command: ["sleep"]
+    args:
+    - "3600"
+    ports:
+    - containerPort: 80
+    envFrom:
+      - configMapRef:
+          name: config-b
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-b
+  namespace: default
+  labels:
+    env: prod
+    app: prod-b
+spec:
+  containers:
+  - name: ubuntu
+    image: ubuntu
+    command: ["$(PODCMD)"]
+    args:
+    - "$(SLEEPMINUTES)"
+    ports:
+    - containerPort: 80
+    env:
+    # Define the environment variable
+      - name: SPECIAL_KEY_A
+        valueFrom:
+          configMapKeyRef:
+            # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+            name: config-a
+            # Specify the key associated with the value
+            key: ui_properties_file_name
+      - name: SPECIAL_KEY_B
+        valueFrom:
+          configMapKeyRef:
+            # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+            name: config-a
+            # Specify the key associated with the value
+            key:  player_initial_lives
+      - name: PODCMD
+        valueFrom:
+          configMapKeyRef:
+            # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+            name: config-c
+            # Specify the key associated with the value
+            key: PODCMD
+      - name: SLEEPMINUTES
+        valueFrom:
+          configMapKeyRef:
+            # The ConfigMap containing the value you want to assign to SPECIAL_LEVEL_KEY
+            name: config-c
+            # Specify the key associated with the value
+            key: SLEEPMINUTES
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-c
+  namespace: default
+  labels:
+    env: prod
+    app: prod-c
+spec:
+  containers:
+  - name: ubuntu
+    image: ubuntu
+    command: ["sleep"]
+    args:
+    - "3600"
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: config-vol-a
+      mountPath: /root/config
+    - name: config-vol-b
+      mountPath: /root/config_b
+  volumes:
+  - name: config-vol-a
+    configMap:
+      name: config-c
+  - name: config-vol-b
+    configMap:
+      name: config-a
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-d
+  namespace: default
+  labels:
+    env: prod
+    app: prod-d
+spec:
+  containers:
+  - name: ubuntu
+    image: ubuntu
+    command: ["sleep"]
+    args:
+    - "3600"
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: config-vol-a
+      mountPath: /root/config_vol
+    - name: config-vol-b
+      mountPath: /root/config_vol_b
+      readOnly: true
+  volumes: 
+  - name: config-vol-a
+    configMap:
+      name: config-a
+      items:
+      - key: game.properties
+        path: game.properties
+      - key: user-name.json
+        path: user-name.json
+  - name: config-vol-b
+    configMap:
+      name: config-b
+      items:
+      - key: SPECIAL_LEVEL
+        path: special_key
+

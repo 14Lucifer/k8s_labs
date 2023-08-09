@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-a
+  namespace: default
+  labels:
+    env: prod
+    app: prod-a
+spec:
+  containers:
+  - name: ubuntu
+    image: ubuntu
+    # As pod cmd var.
+    command: ["$(PODCMD)"]
+    args:
+    - "$(SLEEPMINUTE)"
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: config-vol-a
+      mountPath: /root/config
+    - name: config-vol-b
+      mountPath: /root/config_b
+      readOnly: true
+    # All key as env var. Keys should be in Cap.
+    envFrom:
+      - configMapRef:
+          name: config-b
+    # Specific key as env var.
+    env:
+      - name: SPECIAL_KEY_A
+        valueFrom:
+          configMapKeyRef:
+            name: config-a
+            key: ui_properties_file_name
+      - name: SPECIAL_KEY_B
+        valueFrom:
+          configMapKeyRef:
+            name: config-a
+            key:  player_initial_lives
+      - name: PODCMD
+        valueFrom:
+          configMapKeyRef:
+            name: config-c
+            key: PODCMD
+      - name: SLEEPMINUTES
+        valueFrom:
+          configMapKeyRef:
+            name: config-c
+            key: SLEEPMINUTES
+  volumes:
+  # All keys mounted as vol and each key as file.
+  - name: config-vol-a
+    configMap:
+      name: config-c
+  - name: config-vol-b
+    configMap:
+      name: config-a
+  # Specific keys mounted as vol and each key as file.
+  - name: config-vol-a
+    configMap:
+      name: config-a
+      items:
+      - key: game.properties
+        path: game.properties
+      - key: user-name.json
+        path: user-name.json
+  - name: config-vol-b
+    configMap:
+      name: config-b
+      items:
+      - key: SPECIAL_LEVEL
+        path: special_key
+
+
+
+# spec:
+#   containers:
+#   ....
+#     command: ["$(PODCMD)"]
+#     args:
+#     - "$(SLEEPMINUTE)"
+#     ....
+#     volumeMounts:
+#     - name: 
+#       mountPath: 
+#       readOnly: true
+#     envFrom:
+#     env:
+#       - name: 
+#         valueFrom:
+#           configMapKeyRef:
+#             name: 
+#             key: 
+#   volumes:
+#   - name: 
+#     configMap:
+#       name: 
+#   - name: 
+#     configMap:
+#       name: 
+#       items:
+#       - key: 
+#         path: 
+
+# -- External resources --
+# data:
+#   SPECIAL_LEVEL: little
+#   player_initial_lives: "6"
+#   user-name.json: |
+#     {
+#       name: luke
+#       age: 25
+#     }
+# immutable: true
