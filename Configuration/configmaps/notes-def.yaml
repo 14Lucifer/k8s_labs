@@ -75,7 +75,6 @@ spec:
 
 
 # spec:
-#   containers:
 #   ....
 #     command: ["$(PODCMD)"]
 #     args:
@@ -86,22 +85,25 @@ spec:
 #       mountPath: 
 #       readOnly: true
 #     envFrom:
+#     - secretRef: / configMapRef:
+#         name: 
 #     env:
-#       - name: 
-#         valueFrom:
-#           configMapKeyRef:
-#             name: 
-#             key: 
+#     - name: 
+#       valueFrom:
+#         secretKeyRef: / configMapKeyRef:
+#           name: 
+#           key: 
 #   volumes:
 #   - name: 
-#     configMap:
-#       name: 
+#     secret:
+#       secretName: / configMap:
+#       optional: true (if secret exit, mount)
 #   - name: 
-#     configMap:
-#       name: 
+#     secret:
+#       secretName: /configMap:
 #       items:
 #       - key: 
-#         path: 
+#         path: .<file-name>
 
 # -- External resources --
 # data:
